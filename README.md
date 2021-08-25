@@ -1,27 +1,141 @@
 # postgres-practice
 
-## Running PostgreSQL directly
+## Running PostgreSQL
+
+### Initial attempt (directly through `postgres` user)
 
 Switch user to postgres:
 ```
-sudo -i -u postgres
+sudo su postgres
+```
+Then to actually start PostgreSQL
+```
+psql
 ```
 
-Create a database called "mydb":
-```
-createdb mydb
-```
-(to delete it, you would call "dropdb mydb")
+### The right way
 
-Run psql to interact with the database
+The right way to run PostgreSQL is to set a password for logging in as the
+postgres user. You will need to do this in order to connect to your tables from
+Python.
+I found these instructions
+[here](https://ubuntu.com/server/docs/databases-postgresql).
+
+Switch user to postgres:
 ```
-psql mydb
+sudo su postgres
 ```
+First, alter the password for postgres:
+```
+psql
+# ALTER USER postgres with encrypted password 'pass';
+```
+Then configure postgres to use MD5 authentication with the postgres user:
+```
+vi /etc/postgresql/12/main/pg_hba.conf
+local   all         postgres                          md5
+```
+Then restart the PostgreSQL service:
+```
+sudo systemctl restart postgresql.service
+```
+Then test that the new password worked:
+```
+psql -U postgres -W
+```
+From now on, you can start running with the following single command:
+```
+psql -U postgres
+```
+
+### Creating a database
+
+Now that everything is properly configured, we can create a database for the
+default user
+```
+psql -U postgres
+```
+as follows:
+```
+CREATE DATABASE db;
+```
+Now, we can connect to that database as follows:
+```
+\c db
+```
+Note that "\c" stands for "\connect".
 
 Now you can do some different commands. See
 [here](https://www.postgresql.org/docs/8.0/tutorial-select.html).
 
-## SQL tutorial notes:
+
+### Creating a table
+
+Now, let's create a table within the database.
+If you aren't already connected, you can connect directly to the database
+created above as follows:
+```
+psql db -U postgres
+```
+If you are already connected, skip straight to the next step.
+
+The table creation command looks like this:
+```
+CREATE TABLE weather (
+    city            varchar(80),
+    temp_lo         int,           -- low temperature
+    temp_hi         int,           -- high temperature
+    prcp            real,          -- precipitation
+    date            date
+);
+```
+Here's another:
+```
+CREATE TABLE cities (
+    name            varchar(80),
+    location        point
+);
+```
+To delete the first table, you would do "DROP TABLE weather;".
+
+To add values into the table, we use the INSERT statement.
+The simple form is:
+```
+INSERT INTO weather VALUES ('San Francisco', 46, 50, 0.25, '1994-11-27');
+```
+But it is considered better practice to explicitly list the columns (in which
+case order no longer matters):
+```
+INSERT INTO weather (city, temp_lo, temp_hi, prcp, date)
+    VALUES ('San Francisco', 43, 57, 0.0, '1994-11-29');
+```
+
+### Querying tables
+
+To simply view the table, do this:
+```
+SELECT * FROM weather;
+```
+The asterisk character automatically grabs all columns and is equivalent to the
+following:
+```
+SELECT city, temp_lo, temp_hi, prcp, date FROM weather;
+```
+In production code, it is considered best practice to always list all columns.
+
+You can easily create expressions using data from the table:
+```
+SELECT city, (temp_hi+temp_lo)/2 AS temp_avg, date FROM weather;
+```
+
+### Simple joins
+
+```
+SELECT city, temp_lo, temp_hi, prcp, date, location
+    FROM weather, cities
+    WHERE city = name;
+```
+This is equivalent to an inner join as shown next.
 
 ### Inner joins
 
@@ -147,6 +261,23 @@ will work again.
 ## Notes on connecting to Postgres databases in Python
 
 Following along [here](https://pynative.com/python-postgresql-tutorial/).
+
+Note that you need to sort out the user/password configuration according to the
+instructions above in order for this to work.
+
+You can install psycopg2 using conda
+```
+conda install psycopg2
+```
+Then, to connect to your database, simply do something like this:
+```
+>>> import psycopg2
+>>> conn = psycopg2.connect("dbname='db' user='postgres' host='localhost' password='pass'")
+>>> cur = conn.cursor()
+>>> cur.execute("""SELECT * FROM weather""")
+>>> cur.fetchall()
+[('San Francisco', 46, 50, 0.25, datetime.date(1994, 11, 27)), ('San Francisco', 43, 57, 0.0, datetime.date(1994, 11, 29)), ('Hayward', 37, 54, None, datetime.date(1994, 11, 29))]
+```
 
 ## Notes on converting to SQL databases from file system databases
 
