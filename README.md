@@ -1,6 +1,6 @@
 # postgres-practice
 
-## Running PostgreSQL directly:
+## Running PostgreSQL directly
 
 Switch user to postgres:
 ```
@@ -21,7 +21,7 @@ psql mydb
 Now you can do some different commands. See
 [here](https://www.postgresql.org/docs/8.0/tutorial-select.html).
 
-## SQL notes:
+## SQL tutorial notes:
 
 ### Inner joins
 
@@ -110,10 +110,47 @@ Result:
 
 ### Primary keys and foreign keys
 
+In the previous examples we ended up with blank rows upon joining tables
+because we allowed the weather table to have data for locations that weren't
+included in our list of cities.
+Propwer database design would have been instead to make our list of cities in
+the cities table a "primary key" and the list of cities in the weather table a
+"foreign key" referring to that first primary key.
+This will require data added to the weather table to correspond to one of the
+cities from our cities table.
+```
+CREATE TABLE cities (
+        city     varchar(80) primary key,
+        location point
+);
 
-## Notes:
+CREATE TABLE weather (
+        city      varchar(80) references cities(city),
+        temp_lo   int,
+        temp_hi   int,
+        prcp      real,
+        date      date
+);
+```
+Now, if we were to try adding a city to the weather table without first adding
+it to the list of cities, we would get an error:
+```
+# INSERT INTO weather VALUES ('Berkeley', 45, 53, 0.0, '1994-11-28');
+```
+```
+ERROR:  insert or update on table "weather" violates foreign key constraint "weather_city_fkey"
+DETAIL:  Key (city)=(Berkeley) is not present in table "cities".
+```
+Once we add "Berkeley" to our list of cities in the cities table, though, this
+will work again.
 
-A regular filesystem is a *hierarchical database management system*, whereas a
+## Notes on connecting to Postgres databases in Python
+
+Following along [here](https://pynative.com/python-postgresql-tutorial/).
+
+## Notes on converting to SQL databases from file system databases
+
+A regular file system is a *hierarchical database management system*, whereas a
 table-based system like PostgreSQL is a *relational database management system*
 (RDBMS).
 
