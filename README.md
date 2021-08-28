@@ -227,7 +227,7 @@ Result:
 In the previous examples we ended up with blank rows upon joining tables
 because we allowed the weather table to have data for locations that weren't
 included in our list of cities.
-Propwer database design would have been instead to make our list of cities in
+Proper database design would have been instead to make our list of cities in
 the cities table a "primary key" and the list of cities in the weather table a
 "foreign key" referring to that first primary key.
 This will require data added to the weather table to correspond to one of the
@@ -260,7 +260,7 @@ will work again.
 
 ## Notes on connecting to Postgres databases in Python
 
-Following along [here](https://pynative.com/python-postgresql-tutorial/).
+Following along [here](https://www.postgresqltutorial.com/postgresql-python/).
 
 Note that you need to sort out the user/password configuration according to the
 instructions above in order for this to work.
