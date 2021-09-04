@@ -293,5 +293,7 @@ Info on performance differences between file system and DBMS:
 
  - https://stackoverflow.com/questions/2147902/is-it-faster-to-access-data-from-files-or-a-database-server
 
+Top options, after reading:
 
+ - PostgreSQL has the [`ltree` datatype](https://www.postgresql.org/docs/current/ltree.html), which is essentially equivalent to a filesystem path. We could do something that is, in some sense, very similar to autofile or mirrors it.
 
