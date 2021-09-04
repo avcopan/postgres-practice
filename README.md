@@ -288,6 +288,7 @@ table-based system like PostgreSQL is a *relational database management system*
 Info on converting from HDBMS to RDBMS:
 
  - https://stackoverflow.com/questions/4048151/what-are-the-options-for-storing-hierarchical-data-in-a-relational-database
+ - [This](https://www.slideshare.net/billkarwin/models-for-hierarchical-data) was the most helpful resource I found on that page. It goes through each of the options, with examples.
 
 Info on performance differences between file system and DBMS:
 
