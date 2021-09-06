@@ -1,5 +1,21 @@
 # postgres-practice
 
+## Installing PostgreSQL with root permissions
+
+The normal way to do this on your own system would be with apt:
+```
+sudo apt-get install postgresql
+```
+But note that this requires sudo permissions.
+
+## Installing PostgreSQL with conda
+
+Here's how to install PSQL using conda (from [here])(https://gist.github.com/gwangjinkim/f13bf596fefa7db7d31c22efd1627c7a):
+```
+conda install -y -c conda-forge postgresql
+```
+
+
 ## Running PostgreSQL
 
 ### Initial attempt (directly through `postgres` user)
