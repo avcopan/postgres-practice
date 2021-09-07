@@ -1,6 +1,6 @@
 ## PostgreSQL tutorial
 
-Mostly following along with the main tutorial [here](https://www.postgresql.org/docs/8.0/tutorial-select.html).
+Mostly following along with the main tutorial [here](https://www.postgresql.org/docs/8.0/tutorial-sql.html).
 
 See instructions elsewhere for getting up and running to the point of having a `psql` command line.
 
