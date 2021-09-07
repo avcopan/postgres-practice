@@ -1,52 +1,44 @@
 # postgres-practice
 
-## Installing PostgreSQL with root permissions
+## Installing PostgreSQL as System Service
 
-The normal way to do this on your own system would be with apt:
+Like this:
 ```
 sudo apt-get install postgresql
 ```
-But note that this requires sudo permissions.
+Note that this requires sudo permissions.
 
-## Installing PostgreSQL with conda
 
-Here's how to install PSQL using conda (from [here])(https://gist.github.com/gwangjinkim/f13bf596fefa7db7d31c22efd1627c7a):
+## Setting Up Cluster and Server
+
+One way to get started immediately is by doing the following:
 ```
-conda install -y -c conda-forge postgresql
+sudo su postgres
 ```
+This switches user to `postgres` with root permissions. Then you can start PostgreSQL without entering a password or setting up a username.
+```
+psql
+```
+This works to simply run PostgreSQL, but it will not work for interacting with your databases from Python.
 
+I followed [these instructions](https://ubuntu.com/server/docs/databases-postgresql) in order to do this the right way, enabling interfacing with Python.
 
-## Running PostgreSQL
-
-### Initial attempt (directly through `postgres` user)
+### Create a Username and Password
 
 Switch user to postgres:
 ```
 sudo su postgres
 ```
-Then to actually start PostgreSQL
+Now start the `psql` command line running:
 ```
 psql
 ```
+Inside the `psql` command line, run the following to create a new username/password combo:
+```
+ALTER USER postgres with encrypted password 'pass';
+```
 
-### The right way
-
-The right way to run PostgreSQL is to set a password for logging in as the
-postgres user. You will need to do this in order to connect to your tables from
-Python.
-I found these instructions
-[here](https://ubuntu.com/server/docs/databases-postgresql).
-
-Switch user to postgres:
-```
-sudo su postgres
-```
-First, alter the password for postgres:
-```
-psql
-# ALTER USER postgres with encrypted password 'pass';
-```
-Then configure postgres to use MD5 authentication with the postgres user:
+Now, quit out of `psql` and edit the following file, configuring postgres to use MD5 authentication with the postgres user:
 ```
 vi /etc/postgresql/12/main/pg_hba.conf
 local   all         postgres                          md5
