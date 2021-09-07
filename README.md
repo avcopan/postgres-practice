@@ -8,7 +8,7 @@ In this repository, you will find:
  - A tutorial for getting up and running with PostgreSQL/psycopg2 from a system installation (see `from-system-install.md`).
  - A tutorial for learning basic SQL (see `postgresql-tutorial.md`).
 
-## Resources Databse vs. File System Tradeoffs
+## Database vs. File System Tradeoffs
 
 General tradeoffs:
 
