@@ -1,7 +1,5 @@
-# postgres-practice
-
 (These instructions assume that you do not have root permissions.
-See `local.md` for instructions on how to do this locally with root permissions.)
+See `from-system-install.md` for instructions on how to do install PostgreSQL as a system server with root permissions.)
 
 ## Installing PostgreSQL with conda
 
