@@ -1,4 +1,5 @@
-# postgres-practice
+(These instructions assume that you have root permissions.
+See `from-conda-install.md` for instructions on how to do this in an environment with conda.)
 
 ## Installing PostgreSQL
 
@@ -56,18 +57,13 @@ From now on, you can start running with the following single command:
 psql -U postgres
 ```
 
-### Creating a database
+### Create a New Database
 
-Now that everything is properly configured, we can create a database for the
-default user
-```
-psql -U postgres
-```
-as follows:
+From the `psql` command line, you can create a new database as follows:
 ```
 CREATE DATABASE db;
 ```
-Now, we can connect to that database as follows:
+Now, we can connect to that database like this:
 ```
 \c db
 ```
@@ -77,215 +73,74 @@ Now you can do some different commands. See
 [here](https://www.postgresql.org/docs/8.0/tutorial-select.html).
 
 
-### Creating a table
-
-Now, let's create a table within the database.
-If you aren't already connected, you can connect directly to the database
-created above as follows:
-```
-psql db -U postgres
-```
-If you are already connected, skip straight to the next step.
+### Create a Table in the New Database
 
 The table creation command looks like this:
 ```
-CREATE TABLE weather (
-    city            varchar(80),
-    temp_lo         int,           -- low temperature
-    temp_hi         int,           -- high temperature
-    prcp            real,          -- precipitation
-    date            date
+CREATE TABLE todo_list (
+   task varchar(200),
+   date date,
+   priority int
 );
 ```
-Here's another:
-```
-CREATE TABLE cities (
-    name            varchar(80),
-    location        point
-);
-```
-To delete the first table, you would do "DROP TABLE weather;".
+To delete the first table, you would do "DROP TABLE todo_list;".
+
+### Add Values to the Table
 
 To add values into the table, we use the INSERT statement.
 The simple form is:
 ```
-INSERT INTO weather VALUES ('San Francisco', 46, 50, 0.25, '1994-11-27');
+INSERT INTO todo_list VALUES ('eat breakfast', '2021-09-06', 1);
+INSERT INTO todo_list VALUES ('learn sql', '2021-09-06', 2);
+INSERT INTO todo_list VALUES ('take a break', '2021-09-06', 3);
+INSERT INTO todo_list VALUES ('sleep', '2021-09-07', 4);
 ```
-But it is considered better practice to explicitly list the columns (in which
+
+In production code, it is considered better practice to explicitly list the columns (in which
 case order no longer matters):
 ```
-INSERT INTO weather (city, temp_lo, temp_hi, prcp, date)
-    VALUES ('San Francisco', 43, 57, 0.0, '1994-11-29');
+INSERT INTO todo_list (task, date, priority)
+    VALUES ('wake up', '2021-09-07', 5);
 ```
 
-### Querying tables
+### View the Table
 
-To simply view the table, do this:
+To view the whole table, do this:
 ```
-SELECT * FROM weather;
+SELECT * FROM todo_list;
 ```
-The asterisk character automatically grabs all columns and is equivalent to the
-following:
-```
-SELECT city, temp_lo, temp_hi, prcp, date FROM weather;
-```
-In production code, it is considered best practice to always list all columns.
+The asterisk character automatically grabs all columns.
 
-You can easily create expressions using data from the table:
+To grab a selection of columns, do this:
 ```
-SELECT city, (temp_hi+temp_lo)/2 AS temp_avg, date FROM weather;
+SELECT task, priority FROM todo_list;
 ```
+In production code, it is considered best practice to always list all columns instead of using `*`.
 
-### Simple joins
-
-```
-SELECT city, temp_lo, temp_hi, prcp, date, location
-    FROM weather, cities
-    WHERE city = name;
-```
-This is equivalent to an inner join as shown next.
-
-### Inner joins
-
-Inner joins zip two tables together on matching column entries.
-For example:
-```
-SELECT * FROM weather INNER JOIN cities ON (weather.city = cities.name);
-```
-where the `weather` table has city names in the column `city` and the `cities`
-table has them in the column `name.
-The result is:
-```
-     city      | temp_lo | temp_hi | prcp |    date    |     name      | location  
----------------+---------+---------+------+------------+---------------+-----------
- San Francisco |      46 |      50 | 0.25 | 1994-11-27 | San Francisco | (-194,53)
- San Francisco |      43 |      57 |    0 | 1994-11-29 | San Francisco | (-194,53)
-(2 rows)
-```
-The result contains all columns in the intersection of `weather.city` and `cities.name`.
-
-### Outer joins
-
-Outer joins are similar to inner joins, but the result contains the *union* of
-the columns rather than their intersection.
-Missing data from unmatched columns in one or the other table can be
-automatically filled in.
-So,
-```
-# SELECT * FROM weather FULL OUTER JOIN cities ON (weather.city = cities.name);
-```
-will give
-```
-     city      | temp_lo | temp_hi | prcp |    date    |     name      | location  
----------------+---------+---------+------+------------+---------------+-----------
- San Francisco |      46 |      50 | 0.25 | 1994-11-27 | San Francisco | (-194,53)
- San Francisco |      43 |      57 |    0 | 1994-11-29 | San Francisco | (-194,53)
- Hayward       |      37 |      54 |      | 1994-11-29 |               | 
-               |         |         |      |            | New York      | (666,666)
-(4 rows)
-```
-where we note the blank spaces for Hayward and New York.
-
-A left outer join will include all rows from the left table, whereas a right
-outer join will include all rows from the right table.
-So,
-```
-# SELECT * FROM weather LEFT OUTER JOIN cities ON (weather.city = cities.name);
-```
-results in
-```
-     city      | temp_lo | temp_hi | prcp |    date    |     name      | location  
----------------+---------+---------+------+------------+---------------+-----------
- San Francisco |      46 |      50 | 0.25 | 1994-11-27 | San Francisco | (-194,53)
- San Francisco |      43 |      57 |    0 | 1994-11-29 | San Francisco | (-194,53)
- Hayward       |      37 |      54 |      | 1994-11-29 |               | 
-(3 rows)
-```
-where we note the extra blank entries for Hayward, which had no match in the
-cities table.
-
-### Views
-
-Any query can be saved as a "view" without changing the underlying data.
-According to the tutorial, "Making liberal use of views is a key aspect of good
-SQL database design. Views allow you to encapsulate the details of the
-structure of your tables, which may change as your application evolves, behind
-consistent interfaces."
-
-Views can be treated exactly like tables, but they do not store any new data --
-they are simply a "view" on the table data through a particular operation.
-Example:
-```
-# CREATE VIEW myview AS
-     SELECT * FROM weather FULL OUTER JOIN cities ON (weather.city = cities.name);
-```
-Result:
-```
-     city      | temp_lo | temp_hi | prcp |    date    |     name      | location  
----------------+---------+---------+------+------------+---------------+-----------
- San Francisco |     -54 |      48 | 0.25 | 1994-11-27 | San Francisco | (-194,53)
- San Francisco |     -57 |      55 |    0 | 1994-11-29 | San Francisco | (-194,53)
- Hayward       |     -63 |      52 |      | 1994-11-29 |               | 
-               |         |         |      |            | New York      | (666,666)
-(4 rows)
-```
-
-### Primary keys and foreign keys
-
-In the previous examples we ended up with blank rows upon joining tables
-because we allowed the weather table to have data for locations that weren't
-included in our list of cities.
-Proper database design would have been instead to make our list of cities in
-the cities table a "primary key" and the list of cities in the weather table a
-"foreign key" referring to that first primary key.
-This will require data added to the weather table to correspond to one of the
-cities from our cities table.
-```
-CREATE TABLE cities (
-        city     varchar(80) primary key,
-        location point
-);
-
-CREATE TABLE weather (
-        city      varchar(80) references cities(city),
-        temp_lo   int,
-        temp_hi   int,
-        prcp      real,
-        date      date
-);
-```
-Now, if we were to try adding a city to the weather table without first adding
-it to the list of cities, we would get an error:
-```
-# INSERT INTO weather VALUES ('Berkeley', 45, 53, 0.0, '1994-11-28');
-```
-```
-ERROR:  insert or update on table "weather" violates foreign key constraint "weather_city_fkey"
-DETAIL:  Key (city)=(Berkeley) is not present in table "cities".
-```
-Once we add "Berkeley" to our list of cities in the cities table, though, this
-will work again.
-
-## Notes on connecting to Postgres databases in Python
+## Connecting to your DB from Python
 
 Following along [here](https://www.postgresqltutorial.com/postgresql-python/).
 
-Note that you need to sort out the user/password configuration according to the
-instructions above in order for this to work.
+### Install `psycopg2`
 
-You can install psycopg2 using conda
+Type `exit` to get out of `psql` if you need to.
+
+Then install `psycopg2` as follows:
 ```
 conda install psycopg2
 ```
-Then, to connect to your database, simply do something like this:
+
+### Connect to your DB
+
+Like so:
 ```
 >>> import psycopg2
->>> conn = psycopg2.connect("dbname='db' user='postgres' host='localhost' password='pass'")
+>>> conn = psycopg2.connect("dbname='db' port='12345' user='copan'")
 >>> cur = conn.cursor()
->>> cur.execute("""SELECT * FROM weather""")
+>>> cur.execute("""SELECT * FROM todo_list""")
 >>> cur.fetchall()
-[('San Francisco', 46, 50, 0.25, datetime.date(1994, 11, 27)), ('San Francisco', 43, 57, 0.0, datetime.date(1994, 11, 29)), ('Hayward', 37, 54, None, datetime.date(1994, 11, 29))]
 ```
+This should return the contents of your table as a list.
 
 ## Notes on converting to SQL databases from file system databases
 
