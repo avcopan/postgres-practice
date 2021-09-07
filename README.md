@@ -19,7 +19,7 @@ Performance differences:
  - https://stackoverflow.com/questions/2147902/is-it-faster-to-access-data-from-files-or-a-database-server
 
 
-## Notes on converting to SQL databases from file system databases
+## Converting from File System to Database
 
 A regular file system is a *hierarchical database management system*, whereas a
 table-based system like PostgreSQL is a *relational database management system*
