@@ -1,6 +1,6 @@
 # postgres-practice
 
-## Installing PostgreSQL as System Service
+## Installing PostgreSQL
 
 Like this:
 ```
