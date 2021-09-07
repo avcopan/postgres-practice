@@ -140,26 +140,3 @@ Like so:
 ```
 This should return the contents of your table as a list.
 
-## Additional Questions/Concerns
-
-### Running PostgreSQL on Blues
-
-## Notes on converting to SQL databases from file system databases
-
-A regular file system is a *hierarchical database management system*, whereas a
-table-based system like PostgreSQL is a *relational database management system*
-(RDBMS).
-
-Info on converting from HDBMS to RDBMS:
-
- - https://stackoverflow.com/questions/4048151/what-are-the-options-for-storing-hierarchical-data-in-a-relational-database
- - [This](https://www.slideshare.net/billkarwin/models-for-hierarchical-data) was the most helpful resource I found on that page. It goes through each of the options, with examples.
-
-Info on performance differences between file system and DBMS:
-
- - https://stackoverflow.com/questions/2147902/is-it-faster-to-access-data-from-files-or-a-database-server
-
-Top options, after reading:
-
- - PostgreSQL has the [`ltree` datatype](https://www.postgresql.org/docs/current/ltree.html), which is essentially equivalent to a filesystem path. We could do something that is, in some sense, very similar to autofile or mirrors it. This would be essentially the **path enumeration** approach, as I understand it.
-
